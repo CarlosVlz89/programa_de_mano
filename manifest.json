@@ -1,0 +1,26 @@
+{
+  "name": "Romeo & Julieta - Programa de Mano",
+  "short_name": "R&J Teatro",
+  "description": "Programa de mano digital e interactivo para Romeo & Julieta. Compañía Nacional de Danza.",
+  "start_url": "/programa_de_mano/",
+  "id": "/programa_de_mano/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#be123c",
+  "orientation": "portrait-primary",
+  "categories": ["entertainment", "arts"],
+  "icons": [
+    {
+      "src": "/programa_de_mano/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/programa_de_mano/icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
