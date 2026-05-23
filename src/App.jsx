@@ -5,9 +5,12 @@ import Header from './components/Header';
 import TabBar from './components/TabBar';
 import SynopsisSection from './components/SynopsisSection';
 import CastSection from './components/CastSection';
+import GallerySection from './components/GallerySection';
+import GuestbookSection from './components/GuestbookSection';
 import CreditsSection from './components/CreditsSection';
+import MusicPlayer from './components/MusicPlayer';
 
-// Expanded Data Model with Fictional Bios & Socials
+// Static Data Model with Biographies & Instagram handles
 const playbillData = {
   title: "Romeo & Julieta",
   subtitle: "Ballet en Tres Actos",
@@ -76,7 +79,7 @@ export default function App() {
       {/* Cabecera / Hero Cover */}
       <Header playbillData={playbillData} />
 
-      {/* Navegador por Pestañas */}
+      {/* Navegador por Pestañas Estilo iOS Capsule */}
       <TabBar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Contenedor Principal de Secciones */}
@@ -90,10 +93,19 @@ export default function App() {
             corpsDeBallet={playbillData.corpsDeBallet} 
           />
         )}
+        {activeTab === 'gallery' && (
+          <GallerySection />
+        )}
+        {activeTab === 'guestbook' && (
+          <GuestbookSection />
+        )}
         {activeTab === 'credits' && (
           <CreditsSection />
         )}
       </main>
+
+      {/* Ambient Classical Audio Player Floating Widget */}
+      <MusicPlayer />
 
       {/* Botón Flotante Modo Teatro (Máscara Teatral) */}
       <button 
@@ -103,7 +115,6 @@ export default function App() {
         title={theaterMode ? 'Desactivar Modo Teatro' : 'Activar Modo Teatro'}
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          {/* Máscara de teatro minimalista */}
           <path d="M2 10c0-3.87 3.13-7 7-7h6c3.87 0 7 3.13 7 7v3c0 3.87-3.13 7-7 7H9c-3.87 0-7-3.13-7-7v-3z" />
           <circle cx="9" cy="10" r="1" fill="currentColor" />
           <circle cx="15" cy="10" r="1" fill="currentColor" />
