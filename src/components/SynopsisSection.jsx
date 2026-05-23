@@ -1,29 +1,29 @@
 import React, { useState } from 'react';
 import GlassCard from './GlassCard';
+import useScrollReveal from '../utils/useScrollReveal';
 
 export default function SynopsisSection({ synopsisData }) {
   const [activeAct, setActiveAct] = useState(0);
+  const [revealRef, isRevealed] = useScrollReveal();
 
-  // Calculate timeline progress bar width: 0 gaps = 0%, 1 gap = 50%, 2 gaps = 100%
   const lineWidth = activeAct * 50;
 
   return (
     <div 
+      ref={revealRef}
       role="tabpanel" 
       id="synopsis-panel" 
       aria-labelledby="synopsis-tab"
-      className="timeline-wrapper"
+      className={`timeline-wrapper reveal-element ${isRevealed ? 'revealed' : ''}`}
     >
       {/* Interactive Horizontal Timeline Navigation */}
       <div className="timeline-nav" aria-label="Línea de tiempo de los actos">
-        {/* Glowing active connector line */}
         <div 
           className="timeline-nav-active-line"
           style={{ width: `calc(${lineWidth}% - 8px)` }}
           aria-hidden="true"
         ></div>
 
-        {/* Timeline Nodes */}
         {synopsisData.map((act, idx) => (
           <button
             key={idx}
@@ -39,7 +39,7 @@ export default function SynopsisSection({ synopsisData }) {
         ))}
       </div>
 
-      {/* Slide-in Dynamic Act Text Panel (Key triggers re-mount for smooth CSS keyframe animation) */}
+      {/* Slide-in Act Text Panel */}
       <div className="synopsis-card-container">
         <GlassCard 
           key={activeAct} 

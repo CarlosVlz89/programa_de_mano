@@ -1,15 +1,55 @@
 import React, { useState } from 'react';
 import GlassCard from './GlassCard';
+import useScrollReveal from '../utils/useScrollReveal';
 
 export default function CreditsSection() {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [particles, setParticles] = useState([]); // Golden ticket burst state
+
+  // Granular Scroll Reveals
+  const [creativesRef, isCreativesRevealed] = useScrollReveal();
+  const [techniciansRef, isTechniciansRevealed] = useScrollReveal();
+  const [sponsorsRef, isSponsorsRevealed] = useScrollReveal();
+  const [promoRef, isPromoRevealed] = useScrollReveal();
 
   const handleSubscribe = (e) => {
     e.preventDefault();
     if (!email.trim()) return;
+
+    // Trigger Golden Ticket/Sparkle Burst
+    const goldEmojis = ['🎟️', '✨', '⭐', '💛', '👑'];
+    const newParticles = Array.from({ length: 24 }).map((_, i) => {
+      const id = Date.now() + i;
+      const emoji = goldEmojis[Math.floor(Math.random() * goldEmojis.length)];
+      
+      const tx = (Math.random() - 0.5) * 360;  // wide fly range (-180px to 180px)
+      const ty = -350 - Math.random() * 250;   // vertical fly range (-350px to -600px)
+      const rot = 360 + Math.random() * 720;    // spin angle (degrees)
+      const scale = 0.4 + Math.random() * 0.7;  // scale ratio
+      const duration = 1.0 + Math.random() * 0.5; // duration
+
+      return {
+        id,
+        emoji,
+        tx,
+        ty,
+        rot,
+        scale,
+        duration,
+        x: e.clientX ? `${e.clientX}px` : '50%',
+        y: e.clientY ? `${e.clientY}px` : '60%'
+      };
+    });
+
+    setParticles(newParticles);
     setIsSubmitted(true);
     setEmail('');
+
+    // Cleanup particles
+    setTimeout(() => {
+      setParticles([]);
+    }, 1800);
   };
 
   return (
@@ -20,7 +60,10 @@ export default function CreditsSection() {
       style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
     >
       {/* Equipo Creativo */}
-      <section className="animate-fade-in-up delay-1">
+      <section 
+        ref={creativesRef}
+        className={`reveal-element ${isCreativesRevealed ? 'revealed' : ''}`}
+      >
         <h3 className="section-heading">Equipo Creativo</h3>
         <GlassCard>
           <div className="credit-item">
@@ -47,7 +90,10 @@ export default function CreditsSection() {
       </section>
 
       {/* Equipo Técnico y Producción (El Backstage) */}
-      <section className="animate-fade-in-up delay-2">
+      <section 
+        ref={techniciansRef}
+        className={`reveal-element ${isTechniciansRevealed ? 'revealed' : ''}`}
+      >
         <h3 className="section-heading">Equipo Técnico & Backstage</h3>
         <GlassCard>
           <div className="credit-item">
@@ -74,14 +120,16 @@ export default function CreditsSection() {
       </section>
 
       {/* Créditos Institucionales y Patrocinadores (El Dinero) */}
-      <section className="animate-fade-in-up delay-3">
+      <section 
+        ref={sponsorsRef}
+        className={`reveal-element ${isSponsorsRevealed ? 'revealed' : ''}`}
+      >
         <h3 className="section-heading">Instituciones & Patrocinadores</h3>
         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '-8px 0 16px 4px' }}>
           Obra realizada con el apoyo de fondos públicos y marcas patrocinadoras oficiales.
         </p>
         <div className="sponsors-grid">
           
-          {/* Secretaría de Cultura SVG Logo Placeholder */}
           <div className="sponsor-logo-card" title="Secretaría de Cultura">
             <svg viewBox="0 0 100 40" fill="currentColor" aria-hidden="true">
               <path d="M10 5h10v10H10zm0 20h10v10H10zM30 5h10v30H30zM50 5h40v10H50zm0 20h40v10H50z" opacity="0.8"/>
@@ -89,7 +137,6 @@ export default function CreditsSection() {
             </svg>
           </div>
 
-          {/* INBAL Museum Crest SVG Logo Placeholder */}
           <div className="sponsor-logo-card" title="INBAL - Instituto Nacional de Bellas Artes y Literatura">
             <svg viewBox="0 0 100 40" fill="currentColor" aria-hidden="true">
               <polygon points="10,35 15,5 25,5 30,35" opacity="0.8" />
@@ -99,7 +146,6 @@ export default function CreditsSection() {
             </svg>
           </div>
 
-          {/* Cultura Jalisco SVG Logo Placeholder */}
           <div className="sponsor-logo-card" title="Cultura Jalisco">
             <svg viewBox="0 0 100 40" fill="currentColor" aria-hidden="true">
               <path d="M20,35 C30,35 40,25 40,15 C40,5 20,5 20,5 C20,5 0,5 0,15 C0,25 10,35 20,35 Z" opacity="0.8" />
@@ -112,7 +158,10 @@ export default function CreditsSection() {
       </section>
 
       {/* El Embudo de Marketing & Redes (Call to Action) */}
-      <section className="animate-fade-in-up delay-4">
+      <section 
+        ref={promoRef}
+        className={`reveal-element ${isPromoRevealed ? 'revealed' : ''}`}
+      >
         <h3 className="section-heading">Embudo & Promociones</h3>
         
         {/* Next Season Presale Signup Form */}
@@ -155,7 +204,6 @@ export default function CreditsSection() {
         <h4 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'white', margin: '20px 0 10px 4px' }}>Redes Sociales de la Compañía</h4>
         <div className="social-grid">
           
-          {/* Instagram direct shortcut button */}
           <a 
             href="https://instagram.com/compañianacionaldedanza" 
             target="_blank" 
@@ -170,7 +218,6 @@ export default function CreditsSection() {
             Instagram
           </a>
 
-          {/* TikTok direct button */}
           <a 
             href="https://tiktok.com/@compañianacionaldedanza" 
             target="_blank" 
@@ -194,7 +241,6 @@ export default function CreditsSection() {
           
           <div className="contact-info-list">
             
-            {/* Direct Email link */}
             <a href="mailto:contacto@cndanza.gob.mx" className="contact-item">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
@@ -203,7 +249,6 @@ export default function CreditsSection() {
               contacto@cndanza.gob.mx
             </a>
 
-            {/* Direct Phone link */}
             <a href="tel:+523333333333" className="contact-item">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
@@ -211,7 +256,6 @@ export default function CreditsSection() {
               +52 (33) 3333-3333
             </a>
 
-            {/* Address */}
             <div className="contact-item" style={{ cursor: 'default' }}>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
@@ -223,6 +267,27 @@ export default function CreditsSection() {
           </div>
         </GlassCard>
       </section>
+
+      {/* Render Golden Tickets Particles Overlay */}
+      {particles.map((p) => (
+        <span 
+          key={p.id}
+          className="burst-particle"
+          style={{
+            left: p.x,
+            top: p.y,
+            transformOrigin: 'center center',
+            animation: `particle-fly-up ${p.duration}s cubic-bezier(0.1, 0.8, 0.2, 1) forwards`,
+            '--tx': `${p.tx}px`,
+            '--ty': `${p.ty}px`,
+            '--rot': `${p.rot}deg`,
+            '--target-scale': p.scale,
+            fontSize: p.emoji === '🎟️' ? '2.1rem' : '1.75rem' // Make tickets slightly larger!
+          }}
+        >
+          {p.emoji}
+        </span>
+      ))}
 
     </div>
   );

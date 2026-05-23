@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import GlassCard from './GlassCard';
+import useScrollReveal from '../utils/useScrollReveal';
 
 export default function CastSection({ principals, solistas = [], corpsDeBallet }) {
   const [showAllCorps, setShowAllCorps] = useState(false);
   const [selectedDancer, setSelectedDancer] = useState(null);
   const initialCorpsSize = 8;
+
+  // Staggered Scroll Reveals for each hierarchical section
+  const [principalsRef, isPrincipalsRevealed] = useScrollReveal();
+  const [solistasRef, isSolistasRevealed] = useScrollReveal();
+  const [corpsRef, isCorpsRevealed] = useScrollReveal();
 
   // Listen to Escape key to close the modal (Accessibility Best Practice)
   useEffect(() => {
@@ -28,7 +34,10 @@ export default function CastSection({ principals, solistas = [], corpsDeBallet }
       style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
     >
       {/* Primeros Bailarines */}
-      <section className="animate-fade-in-up delay-1">
+      <section 
+        ref={principalsRef}
+        className={`reveal-element ${isPrincipalsRevealed ? 'revealed' : ''}`}
+      >
         <h3 className="section-heading">Primeros Bailarines</h3>
         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '-8px 0 16px 4px', fontStyle: 'italic' }}>
           * Pulsa sobre un bailarín para conocer su trayectoria.
@@ -64,7 +73,10 @@ export default function CastSection({ principals, solistas = [], corpsDeBallet }
 
       {/* Solistas / Corifeos */}
       {solistas.length > 0 && (
-        <section className="animate-fade-in-up delay-2">
+        <section 
+          ref={solistasRef}
+          className={`reveal-element ${isSolistasRevealed ? 'revealed' : ''}`}
+        >
           <h3 className="section-heading">Solistas</h3>
           <div className="cast-grid">
             {solistas.map((person, idx) => (
@@ -80,7 +92,10 @@ export default function CastSection({ principals, solistas = [], corpsDeBallet }
       )}
 
       {/* Cuerpo de Baile */}
-      <section className="animate-fade-in-up delay-3">
+      <section 
+        ref={corpsRef}
+        className={`reveal-element ${isCorpsRevealed ? 'revealed' : ''}`}
+      >
         <h3 className="section-heading">Cuerpo de Baile</h3>
         <GlassCard>
           <div className="corps-container">

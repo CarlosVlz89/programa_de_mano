@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import useScrollReveal from '../utils/useScrollReveal';
 
 const galleryPhotos = [
   {
@@ -41,6 +42,7 @@ const galleryPhotos = [
 
 export default function GallerySection() {
   const [activePhoto, setActivePhoto] = useState(null);
+  const [revealRef, isRevealed] = useScrollReveal();
 
   // Keyboard navigation hooks inside Lightbox
   useEffect(() => {
@@ -62,10 +64,11 @@ export default function GallerySection() {
 
   return (
     <div 
+      ref={revealRef}
       role="tabpanel" 
       id="gallery-panel" 
       aria-labelledby="gallery-tab"
-      className="animate-fade-in-up delay-1"
+      className={`reveal-element ${isRevealed ? 'revealed' : ''}`}
     >
       <h3 className="section-heading" style={{ marginBottom: '16px' }}>En Escena</h3>
       
