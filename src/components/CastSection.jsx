@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import GlassCard from './GlassCard';
 
-export default function CastSection({ principals, corpsDeBallet }) {
+export default function CastSection({ principals, solistas = [], corpsDeBallet }) {
   const [showAllCorps, setShowAllCorps] = useState(false);
   const [selectedDancer, setSelectedDancer] = useState(null);
   const initialCorpsSize = 8;
@@ -62,8 +62,25 @@ export default function CastSection({ principals, corpsDeBallet }) {
         </div>
       </section>
 
+      {/* Solistas / Corifeos */}
+      {solistas.length > 0 && (
+        <section className="animate-fade-in-up delay-2">
+          <h3 className="section-heading">Solistas</h3>
+          <div className="cast-grid">
+            {solistas.map((person, idx) => (
+              <GlassCard key={idx} className="principal-card !p-3.5 !mb-0">
+                <div className="principal-info" style={{ marginLeft: '4px' }}>
+                  <span className="principal-role">{person.role}</span>
+                  <span className="principal-name" style={{ fontSize: '0.95rem' }}>{person.name}</span>
+                </div>
+              </GlassCard>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Cuerpo de Baile */}
-      <section className="animate-fade-in-up delay-2">
+      <section className="animate-fade-in-up delay-3">
         <h3 className="section-heading">Cuerpo de Baile</h3>
         <GlassCard>
           <div className="corps-container">

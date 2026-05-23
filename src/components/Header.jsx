@@ -61,7 +61,10 @@ export default function Header({ playbillData }) {
 
         <span className="company-tag">{playbillData.company}</span>
         <h1 className="playbill-title">{playbillData.title}</h1>
-        <p className="playbill-subtitle">{playbillData.subtitle}</p>
+        <p className="playbill-subtitle" style={{ marginBottom: '6px' }}>{playbillData.subtitle}</p>
+        <span style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', fontWeight: 300, letterSpacing: '0.05em' }}>
+          {playbillData.date}
+        </span>
       </header>
 
       {/* Toast Alert Fallback */}

@@ -10,12 +10,12 @@ import GuestbookSection from './components/GuestbookSection';
 import CreditsSection from './components/CreditsSection';
 import MusicPlayer from './components/MusicPlayer';
 
-// Static Data Model with Biographies & Instagram handles
+// Rigorous Theatrical Data Model
 const playbillData = {
   title: "Romeo & Julieta",
   subtitle: "Ballet en Tres Actos",
   company: "Compañía Nacional de Danza",
-  date: "Temporada de Otoño 2026",
+  date: "Teatro Degollado | Temporada de Otoño 2026",
   heroImage: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=800&auto=format&fit=crop",
   synopsis: [
     { act: "Acto I", text: "En Verona, la rivalidad entre las familias Montesco y Capuleto tiñe las calles de sangre. Durante un baile de máscaras en la mansión Capuleto, Romeo (un Montesco) conoce a Julieta. Se enamoran perdidamente a primera vista, sellando su trágico destino." },
@@ -36,28 +36,14 @@ const playbillData = {
       image: "https://i.pravatar.cc/150?img=11",
       bio: "Originario de Santiago de Chile, comenzó sus estudios a los 9 años. Tras ser becado por el Royal Ballet School de Londres, se incorporó a esta compañía como Primer Bailarín en 2022. Destaca por su potente virtuosismo técnico, saltos ingrávidos y profunda expresividad en roles clásicos románticos.",
       instagram: "mateosilva.dance"
-    },
-    { 
-      role: "Mercucio", 
-      name: "Alejandro Vargas", 
-      image: "https://i.pravatar.cc/150?img=60",
-      bio: "Formado en la Escuela Nacional de Danza clásica. Su desbordante carisma escénico, precisión técnica y velocidad de giro lo convierten en el intérprete idóneo para el dinámico rol de Mercucio, papel que ha defendido con gran éxito durante tres temporadas consecutivas.",
-      instagram: "ale_vargas_ballet"
-    },
-    { 
-      role: "Teobaldo", 
-      name: "Dmitry Petrov", 
-      image: "https://i.pravatar.cc/150?img=61",
-      bio: "Graduado con honores de la célebre Academia Vaganova de San Petersburgo. Con un imponente físico y una soberbia presencia escénica, Dmitry personifica la altivez y fiereza dramática del líder Capuleto, fusionando una técnica académica impecable con dotes actorales excepcionales.",
-      instagram: "dmitrypetrov.ballet"
-    },
-    { 
-      role: "Fray Lorenzo", 
-      name: "Carlos Mendoza", 
-      image: "https://i.pravatar.cc/150?img=68",
-      bio: "Primer Bailarín de gran trayectoria artística con más de 25 años en los escenarios internacionales. Carlos aporta una conmovedora gravedad escénica, profunda sabiduría gestual y una presencia solemne al vital personaje que casa en secreto y sella el destino de la joven pareja.",
-      instagram: "carlosmendoza.dance"
-    },
+    }
+  ],
+  solistas: [
+    { role: "Mercucio (Amigo de Romeo)", name: "Alejandro Vargas" },
+    { role: "Teobaldo (Primo de Julieta)", name: "Dmitry Petrov" },
+    { role: "Fray Lorenzo (Consejero Espiritual)", name: "Carlos Mendoza" },
+    { role: "Conde Paris (Pretendiente)", name: "Roberto Díaz" },
+    { role: "Lady Capuleto (Madre de Julieta)", name: "Elena Torres" }
   ],
   corpsDeBallet: Array.from({ length: 30 }, (_, i) => ({
     name: `Bailarín${i % 2 === 0 ? 'a' : ''} ${i + 1}`
@@ -67,6 +53,7 @@ const playbillData = {
 export default function App() {
   const [activeTab, setActiveTab] = useState('synopsis');
   const [theaterMode, setTheaterMode] = useState(false);
+  const [showAlert, setShowAlert] = useState(true);
 
   return (
     <div className={`mobile-viewport ${theaterMode ? 'theater-mode' : ''}`}>
@@ -79,6 +66,26 @@ export default function App() {
       {/* Cabecera / Hero Cover */}
       <Header playbillData={playbillData} />
 
+      {/* 🔔 Avisos de Sala (Reglas del juego - Dismissible) */}
+      {showAlert && (
+        <div className="alert-banner animate-fade-in-up">
+          <button 
+            className="alert-close" 
+            onClick={() => setShowAlert(false)}
+            aria-label="Cerrar avisos de sala"
+            title="Cerrar avisos"
+          >
+            &times;
+          </button>
+          <div className="alert-content">
+            <span className="alert-icon" aria-hidden="true">🔔</span>
+            <p>
+              Para disfrutar la función, te invitamos a mantener tu dispositivo en <strong>Modo Oscuro</strong> y con el <strong>brillo al mínimo</strong>. Queda estrictamente prohibida la grabación en video o fotografía con flash por derechos de autor y seguridad de los artistas.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Navegador por Pestañas Estilo iOS Capsule */}
       <TabBar activeTab={activeTab} setActiveTab={setActiveTab} />
 
@@ -90,6 +97,7 @@ export default function App() {
         {activeTab === 'cast' && (
           <CastSection 
             principals={playbillData.principals} 
+            solistas={playbillData.solistas}
             corpsDeBallet={playbillData.corpsDeBallet} 
           />
         )}
