@@ -6,6 +6,7 @@ export default function CreditsSection() {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [particles, setParticles] = useState([]); // Golden ticket burst state
+  const [activeFlip, setActiveFlip] = useState(null); // Active flipped 3D card
 
   // Granular Scroll Reveals
   const [creativesRef, isCreativesRevealed] = useScrollReveal();
@@ -51,6 +52,46 @@ export default function CreditsSection() {
       setParticles([]);
     }, 1800);
   };
+
+  // Sponsors 3D data model
+  const sponsors = [
+    {
+      id: 'cultura',
+      title: "Secretaría de Cultura",
+      desc: "Institución que impulsa y difunde las artes escénicas nacionales y co-financia las puestas de danza clásica.",
+      logo: (
+        <svg viewBox="0 0 100 40" fill="currentColor">
+          <path d="M10 5h10v10H10zm0 20h10v10H10zM30 5h10v30H30zM50 5h40v10H50zm0 20h40v10H50z" opacity="0.8"/>
+          <text x="50" y="22" fontSize="5" fontWeight="bold" fill="currentColor">SEC. CULTURA</text>
+        </svg>
+      )
+    },
+    {
+      id: 'inbal',
+      title: "INBAL México",
+      desc: "Instituto nacional que resguarda el rigor académico, bellas artes y la excelencia de la Compañía de Danza.",
+      logo: (
+        <svg viewBox="0 0 100 40" fill="currentColor">
+          <polygon points="10,35 15,5 25,5 30,35" opacity="0.8" />
+          <polygon points="35,35 40,5 50,5 55,35" opacity="0.8" />
+          <rect x="60" y="5" width="30" height="30" rx="3" opacity="0.8" />
+          <text x="75" y="22" fontSize="7" fontWeight="900" fill="currentColor" textAnchor="middle">INBAL</text>
+        </svg>
+      )
+    },
+    {
+      id: 'jalisco',
+      title: "Cultura Jalisco",
+      desc: "Fondo estatal de fomento cultural que hospeda y apoya la realización de esta gala en el Teatro Degollado.",
+      logo: (
+        <svg viewBox="0 0 100 40" fill="currentColor">
+          <path d="M20,35 C30,35 40,25 40,15 C40,5 20,5 20,5 C20,5 0,5 0,15 C0,25 10,35 20,35 Z" opacity="0.8" />
+          <circle cx="20" cy="17" r="6" fill="#000" opacity="0.2"/>
+          <text x="55" y="24" fontSize="8" fontWeight="bold" fill="currentColor">JALISCO</text>
+        </svg>
+      )
+    }
+  ];
 
   return (
     <div 
@@ -125,35 +166,33 @@ export default function CreditsSection() {
         className={`reveal-element ${isSponsorsRevealed ? 'revealed' : ''}`}
       >
         <h3 className="section-heading">Instituciones & Patrocinadores</h3>
-        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '-8px 0 16px 4px' }}>
-          Obra realizada con el apoyo de fondos públicos y marcas patrocinadoras oficiales.
+        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '-8px 0 16px 4px', fontStyle: 'italic' }}>
+          * Pulsa sobre un logotipo para girarlo en 3D y conocer su aporte.
         </p>
         <div className="sponsors-grid">
-          
-          <div className="sponsor-logo-card" title="Secretaría de Cultura">
-            <svg viewBox="0 0 100 40" fill="currentColor" aria-hidden="true">
-              <path d="M10 5h10v10H10zm0 20h10v10H10zM30 5h10v30H30zM50 5h40v10H50zm0 20h40v10H50z" opacity="0.8"/>
-              <text x="50" y="22" fontSize="5" fontWeight="bold" fill="currentColor">SEC. CULTURA</text>
-            </svg>
-          </div>
+          {sponsors.map((sponsor) => (
+            <div 
+              key={sponsor.id}
+              onClick={() => setActiveFlip(activeFlip === sponsor.id ? null : sponsor.id)}
+              className={`flip-card-container ${activeFlip === sponsor.id ? 'flipped' : ''}`}
+              role="button"
+              aria-label={`Patrocinador ${sponsor.title}`}
+              aria-expanded={activeFlip === sponsor.id}
+            >
+              <div className="flip-card-inner">
+                {/* Front Side: Clean vector SVG logo */}
+                <div className="flip-card-front">
+                  {sponsor.logo}
+                </div>
 
-          <div className="sponsor-logo-card" title="INBAL - Instituto Nacional de Bellas Artes y Literatura">
-            <svg viewBox="0 0 100 40" fill="currentColor" aria-hidden="true">
-              <polygon points="10,35 15,5 25,5 30,35" opacity="0.8" />
-              <polygon points="35,35 40,5 50,5 55,35" opacity="0.8" />
-              <rect x="60" y="5" width="30" height="30" rx="3" opacity="0.8" />
-              <text x="75" y="22" fontSize="7" fontWeight="900" fill="currentColor" textAnchor="middle">INBAL</text>
-            </svg>
-          </div>
-
-          <div className="sponsor-logo-card" title="Cultura Jalisco">
-            <svg viewBox="0 0 100 40" fill="currentColor" aria-hidden="true">
-              <path d="M20,35 C30,35 40,25 40,15 C40,5 20,5 20,5 C20,5 0,5 0,15 C0,25 10,35 20,35 Z" opacity="0.8" />
-              <circle cx="20" cy="17" r="6" fill="#000" opacity="0.2"/>
-              <text x="55" y="24" fontSize="8" fontWeight="bold" fill="currentColor">JALISCO</text>
-            </svg>
-          </div>
-
+                {/* Back Side: Detailed Glassmorphic Message */}
+                <div className="flip-card-back">
+                  <span className="flip-card-back-title">{sponsor.title}</span>
+                  <p className="flip-card-back-desc">{sponsor.desc}</p>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 

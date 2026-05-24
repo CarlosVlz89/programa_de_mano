@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import GlassCard from './GlassCard';
 import useScrollReveal from '../utils/useScrollReveal';
+import { db, isFirebaseValid } from '../utils/firebase';
+import { collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp } from 'firebase/firestore';
 
 const seedMessages = [
   {
-    id: 1,
+    id: 'seed-1',
     name: "Sofía Robles",
     message: "¡Qué absoluto deleite ver esta puesta en escena al aire libre! Mateo Silva parece flotar en sus saltos y la orquesta suena espectacular. ¡Felicitaciones a todo el elenco! 🩰✨",
     emoji: "🩰",
     date: "Hace 10 min"
   },
   {
-    id: 2,
+    id: 'seed-2',
     name: "Carlos Gutiérrez",
     message: "¡Impresionante la fuerza escénica de Isabella Rossi! Se me erizó la piel en la escena final de la cripta. Una Julieta inolvidable. 💐👏👏",
     emoji: "💐",
     date: "Hace 35 min"
   },
   {
-    id: 3,
+    id: 'seed-3',
     name: "Miguel Alatorre",
     message: "Teobaldo imponente. Dmitry Petrov encarna la furia Capuleto con una fijeza y vigor técnico dignos de aplauso. ¡Bravo! 🎭",
     emoji: "🎭",
@@ -39,7 +41,8 @@ export default function GuestbookSection() {
   const [formRef, isFormRevealed] = useScrollReveal();
   const [wallRef, isWallRevealed] = useScrollReveal();
 
-  useEffect(() => {
+  // Helper: Load Local Storage Messages
+  const loadLocalStorageMessages = () => {
     const saved = localStorage.getItem('rj_guestbook_messages');
     if (saved) {
       try {
@@ -51,6 +54,62 @@ export default function GuestbookSection() {
       setMessages(seedMessages);
       localStorage.setItem('rj_guestbook_messages', JSON.stringify(seedMessages));
     }
+  };
+
+  // Real-time Database Sync (Firestore vs Local Storage)
+  useEffect(() => {
+    if (!isFirebaseValid || !db) {
+      loadLocalStorageMessages();
+      return;
+    }
+
+    // Bind real-time snapshot listener to Firestore
+    const q = query(
+      collection(db, 'comments'),
+      orderBy('timestamp', 'desc'),
+      limit(50)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetchedMessages = snapshot.docs.map(doc => {
+        const data = doc.data();
+        
+        // Calculate dynamic relative date based on Firebase timestamp
+        let formattedDate = "Hace un momento";
+        if (data.timestamp) {
+          const date = data.timestamp.toDate();
+          const minsDiff = Math.floor((new Date() - date) / 60000);
+          if (minsDiff < 1) formattedDate = "Hace un momento";
+          else if (minsDiff < 60) formattedDate = `Hace ${minsDiff} min`;
+          else {
+            const hours = Math.floor(minsDiff / 60);
+            if (hours < 24) formattedDate = `Hace ${hours} h`;
+            else formattedDate = date.toLocaleDateString();
+          }
+        }
+        
+        return {
+          id: doc.id,
+          name: data.name,
+          message: data.message,
+          emoji: data.emoji,
+          date: formattedDate
+        };
+      });
+
+      // If database is active but empty, show virtual seeds, otherwise show database comments
+      if (fetchedMessages.length === 0) {
+        setMessages(seedMessages);
+      } else {
+        setMessages(fetchedMessages);
+      }
+    }, (error) => {
+      console.error("❌ [Firestore] Sincronización fallida:", error);
+      // Fallback cleanly to Local Storage if network fails or permissions are denied
+      loadLocalStorageMessages();
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const triggerEmojiBurst = (e) => {
@@ -58,7 +117,6 @@ export default function GuestbookSection() {
     const newParticles = Array.from({ length: 18 }).map((_, i) => {
       const id = Date.now() + i;
       
-      // Random physics targets
       const tx = (Math.random() - 0.5) * 320; // horizontal fly range (-160px to 160px)
       const ty = -300 - Math.random() * 250;  // vertical upward range (-300px to -550px)
       const rot = 180 + Math.random() * 540;   // random 3D spin rotation (degrees)
@@ -73,7 +131,6 @@ export default function GuestbookSection() {
         rot,
         scale,
         duration,
-        // Center position near the click coordinate or relative to button
         x: e.clientX ? `${e.clientX}px` : '50%',
         y: e.clientY ? `${e.clientY}px` : '75%'
       };
@@ -87,24 +144,40 @@ export default function GuestbookSection() {
     }, 1500);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim() || !message.trim()) return;
 
-    const newNote = {
-      id: Date.now(),
+    const commentData = {
       name: name.trim(),
       message: message.trim(),
       emoji: selectedEmoji,
-      date: "Hace un momento"
     };
 
-    const updated = [newNote, ...messages];
-    setMessages(updated);
-    localStorage.setItem('rj_guestbook_messages', JSON.stringify(updated));
-
-    // Trigger the emoji explosion
+    // Trigger visual particles immediately for instant client feedback
     triggerEmojiBurst(e);
+
+    try {
+      if (isFirebaseValid && db) {
+        // Upload to Cloud Firestore with Server Timestamp
+        await addDoc(collection(db, 'comments'), {
+          ...commentData,
+          timestamp: serverTimestamp()
+        });
+      } else {
+        // Local Storage Fallback Mode
+        const newNote = {
+          id: Date.now().toString(),
+          ...commentData,
+          date: "Hace un momento"
+        };
+        const updated = [newNote, ...messages];
+        setMessages(updated);
+        localStorage.setItem('rj_guestbook_messages', JSON.stringify(updated));
+      }
+    } catch (err) {
+      console.error("❌ Error al guardar dedicatoria:", err);
+    }
 
     // Reset Form
     setName('');
@@ -119,10 +192,15 @@ export default function GuestbookSection() {
       aria-labelledby="guestbook-tab"
       className="guestbook-wrapper"
     >
-      {/* Form Card with Scroll Reveal */}
+      {/* Form Card */}
       <div ref={formRef} className={`reveal-element ${isFormRevealed ? 'revealed' : ''}`}>
         <GlassCard className="!p-6">
-          <h3 className="form-title">Escribir una dedicatoria</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <h3 className="form-title" style={{ margin: 0 }}>Escribir una dedicatoria</h3>
+            <span style={{ fontSize: '0.65rem', color: isFirebaseValid ? 'var(--color-rose-400)' : 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              {isFirebaseValid ? '● En Vivo' : '● Local'}
+            </span>
+          </div>
           <form onSubmit={handleSubmit}>
             
             <input 
@@ -176,7 +254,7 @@ export default function GuestbookSection() {
         </GlassCard>
       </div>
 
-      {/* Messages Feed with Scroll Reveal */}
+      {/* Messages Feed */}
       <div 
         ref={wallRef} 
         className={`messages-wall reveal-element ${isWallRevealed ? 'revealed' : ''}`}
