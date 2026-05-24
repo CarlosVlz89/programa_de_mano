@@ -6,6 +6,7 @@ export default function SynopsisSection({ synopsisData }) {
   const [activeAct, setActiveAct] = useState(0);
   const [revealRef, isRevealed] = useScrollReveal();
 
+  // Progress line width: 0% -> 50% -> 100%
   const lineWidth = activeAct * 50;
 
   return (
@@ -39,20 +40,31 @@ export default function SynopsisSection({ synopsisData }) {
         ))}
       </div>
 
-      {/* Slide-in Act Text Panel */}
-      <div className="synopsis-card-container">
-        <GlassCard 
-          key={activeAct} 
-          className="synopsis-slide-enter"
-          style={{ minHeight: '180px' }}
+      {/* 🎪 3D Scenic Stage Cylinder Carousel */}
+      <div className="stage-3d-scene" aria-live="polite">
+        <div 
+          className="stage-3d-carousel"
+          style={{ transform: `rotateY(${activeAct * -120}deg)` }}
         >
-          <span className="act-title" style={{ fontSize: '0.8rem', color: 'var(--color-rose-400)', fontWeight: 700 }}>
-            {synopsisData[activeAct].act}
-          </span>
-          <p className="act-text" style={{ marginTop: '8px' }}>
-            {synopsisData[activeAct].text}
-          </p>
-        </GlassCard>
+          {synopsisData.map((act, idx) => (
+            <div 
+              key={idx}
+              className={`stage-3d-card ${activeAct === idx ? 'active' : 'inactive'}`}
+              role="group"
+              aria-label={`Argumento del ${act.act}`}
+              aria-hidden={activeAct !== idx}
+            >
+              <GlassCard style={{ height: '100%', padding: '20px' }}>
+                <span className="act-title" style={{ fontSize: '0.8rem', color: 'var(--color-rose-400)', fontWeight: 700 }}>
+                  {act.act}
+                </span>
+                <p className="act-text" style={{ marginTop: '8px', fontSize: '0.88rem', lineHeight: '1.55' }}>
+                  {act.text}
+                </p>
+              </GlassCard>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
